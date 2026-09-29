@@ -1,12 +1,22 @@
-.venv/
-__pycache__/
-*.pyc
-data/v7_datasets/
+# Python environments and caches
 .venv/
 .venv*/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+# Node and editor files
 node_modules/
+.vscode/
+.idea/
+# Credentials and local environment
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+# Private runtime user imports, case files, and trained models
+data/v7_datasets/
+# OS files
+.DS_Store
+Thumbs.db

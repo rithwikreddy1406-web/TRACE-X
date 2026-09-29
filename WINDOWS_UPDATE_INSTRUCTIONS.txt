@@ -1,0 +1,35 @@
+TRACE-X v8 GITHUB UPDATE — WINDOWS POWERSHELL (no WSL required for Git)
+
+1. Download TRACE-X-v8-GitHub-UPDATE.zip to Windows Downloads.
+2. Open PowerShell. Run (adjust if your project has a different path):
+
+$project = "$env:USERPROFILE\Downloads\tracex_v7_dynamic_dataset"
+Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\TRACE-X-v8-GitHub-UPDATE.zip" -DestinationPath $project -Force
+Set-Location $project
+
+3. Check expected updates before publishing:
+
+git status --short
+git diff --stat
+git remote -v
+
+4. Check the staged file list, then commit and push:
+
+git add -A
+git diff --cached --stat
+git commit -m "Add v8 UTXO investigator and static Netlify demo"
+git push
+
+5. Verify these paths on https://github.com/rithwikreddy1406-web/TRACE-X :
+  backend/generate_utxo_investigation_demo.py
+  backend/utxo_audit.py
+  dashboard/console/v8.js
+  tests/test_v8_utxo.py
+  tests/tracex_utxo_investigation_120.csv
+  netlify-demo/index.html
+  netlify-demo/demo_utxo_evidence.json
+  netlify-demo/demo_2008_utxo_evidence.json
+
+The local app still requires its v7 Python server, dependencies and dataset upload.
+The Netlify demo shows precomputed synthetic analysis only.
+Do not commit .env, private case files, runtime uploads or investigator-identifying data.

@@ -157,7 +157,7 @@ def anomalies(rows):
         ov=r['output_amounts'];total=sum(ov);mean=total/max(1,len(ov));
         X.append([len(r['input_addresses']),len(ov),math.log1p(sum(r['input_amounts'])),math.log1p(total),
                   max(ov)/total if total else 0,math.sqrt(sum((v-mean)**2 for v in ov)/len(ov))/mean if mean else 0,
-                  math.log1p((r['fee'] or 0)*1e6),sum(wallet_freq[w] for w in r['input_addresses'])/len(r['input_addresses']),
+                  math.log1p((r['fee'] or 0)*1e6),sum(wallet_freq[w] for w in r['input_addresses'])/max(1,len(r['input_addresses'])),
                   int(bool(set(r['input_addresses'])&set(r['output_addresses']))),int(bool(r['src_ip']))])
     X=np.array(X,float);scaler=RobustScaler(quantile_range=(10,90));Z=np.clip(scaler.fit_transform(X),-25,25)
     forest=IsolationForest(n_estimators=100,max_samples=min(256,len(rows)),random_state=42,n_jobs=1)

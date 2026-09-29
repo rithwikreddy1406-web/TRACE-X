@@ -118,6 +118,45 @@ def canonicalize(rows):
     return txs
 
 
+def structural_indicators(txs, edges):
+    """Non-criminal structural review signals supported by explicit outpoints only.
+
+    A pattern indicator is a hypothesis to inspect, never evidence of illegality.
+    """
+    by_id={t['txid']:t for t in txs}
+    outspend={(e['from_txid'],e['spent_vout']):e['to_txid'] for e in edges}
+    signals=[]
+    for tx in txs:
+        if len(tx['outputs'])>=4:
+            signals.append({'type':'fan_out','txids':[tx['txid']],
+              'detail':f"Transaction has {len(tx['outputs'])} outputs; review distribution and recipients."})
+        if len(tx['inputs'])>=4:
+            signals.append({'type':'consolidation','txids':[tx['txid']],
+              'detail':f"Transaction records {len(tx['inputs'])} inputs; review merged outpoints."})
+    # A peeling-like observation needs 3 or more *linked* two-output stages.
+    nxt={}
+    for tx in txs:
+        outputs=tx['outputs']
+        if len(outputs)!=2:continue
+        low,high=sorted(outputs,key=lambda o:amount(o['amount']))
+        total=amount(low['amount'])+amount(high['amount'])
+        if not total or amount(low['amount'])>total*Decimal('0.15'):continue
+        following=outspend.get((tx['txid'],high['vout']))
+        if following and following in by_id:nxt[tx['txid']]=following
+    targets=set(nxt.values());seen=set()
+    for start in nxt:
+        if start in targets:continue
+        chain=[start];cur=start
+        while cur in nxt and nxt[cur] not in chain:
+            cur=nxt[cur];chain.append(cur)
+        steps=[x for x in chain if len(by_id[x]['outputs'])==2]
+        if len(steps)>=3:
+            signals.append({'type':'peeling_like_sequence','txids':steps,
+              'detail':f"{len(steps)} sequential two-output transactions with a smaller output and a spent larger output; not a crime classification."})
+            seen.update(steps)
+    return signals
+
+
 def audit(txs,source_path=None, max_edges=20000):
     outpoints={(t['txid'],o['vout']):o for t in txs for o in t['outputs']}
     spends={};edges=[];warnings=[];links=0; missing=0; unspecified=0; invalid=0;complete=0
@@ -162,12 +201,13 @@ def audit(txs,source_path=None, max_edges=20000):
     source_hash=None
     if source_path is not None:
         with Path(source_path).open('rb') as f:source_hash=hashlib.file_digest(f,'sha256').hexdigest()
+    indicators=structural_indicators(txs,edges)
     return {'schema_version':'6.0','source_file':Path(source_path).name if source_path else None,'source_sha256':source_hash,
             'provenance_mode':'EXPLICIT_OUTPOINTS' if links else 'WALLET_OBSERVATIONS_ONLY',
             'summary':{'transactions':len(txs),'outpoint_links':links,'unlinked_input_refs':missing,
                        'inputs_without_outpoints':unspecified,'verified_complete_transactions':complete,
-                       'integrity_warnings':len(warnings),'exported_edges':len(edges)},
-            'transactions':tx_results,'utxo_edges':edges,'warnings':warnings,
+                       'integrity_warnings':len(warnings),'exported_edges':len(edges),'pattern_indicators':len(indicators)},
+            'transactions':tx_results,'utxo_edges':edges,'warnings':warnings,'pattern_indicators':indicators,
             'limitations':['Explicit links prove reference to a prior output, not which input funds any particular output.',
                            'Missing prior transactions remain unresolved; no outpoint is fabricated from wallet names or amounts.',
                            'Source SHA-256 identifies imported bytes; it does not establish external authenticity or chain of custody.']}
