@@ -1,0 +1,7 @@
+{"transactions":[
+{"txid":"fixture_tx_001","timestamp":"2026-09-01T09:00:00Z","inputs":[],"outputs":[{"vout":0,"address":"fixture_wallet_A","amount":"5.00000000"}]},
+{"txid":"fixture_tx_002","timestamp":"2026-09-01T09:10:00Z","inputs":[{"prev_txid":"fixture_tx_001","vout":0,"address":"fixture_wallet_A","amount":"5.00000000"}],"outputs":[{"vout":0,"address":"fixture_wallet_B","amount":"3.00000000"},{"vout":1,"address":"fixture_wallet_A","amount":"1.99990000"}]},
+{"txid":"fixture_tx_003","timestamp":"2026-09-01T09:20:00Z","inputs":[{"prev_txid":"fixture_tx_002","vout":0,"address":"fixture_wallet_B","amount":"3.00000000"}],"outputs":[{"vout":0,"address":"fixture_wallet_C","amount":"2.99980000"}]},
+{"txid":"fixture_tx_004","timestamp":"2026-09-01T09:25:00Z","inputs":[{"prev_txid":"fixture_tx_002","vout":1,"address":"fixture_wallet_A","amount":"1.99990000"}],"outputs":[{"vout":0,"address":"fixture_wallet_D","amount":"1.99980000"}]},
+{"txid":"fixture_tx_005","timestamp":"2026-09-01T09:30:00Z","inputs":[{"prev_txid":"outside_dataset","vout":0,"address":"fixture_wallet_Z"}],"outputs":[{"vout":0,"address":"fixture_wallet_E","amount":"0.25000000"}]}
+]}
