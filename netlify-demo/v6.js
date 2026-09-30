@@ -43,7 +43,7 @@ function casesPage(){const shown=v6Cases.filter(c=>v6CaseFilter==='All'||c.statu
 async function v6LoadProvenance(){let result=null,origin='';let candidates=[window.TRACEX_STATIC_DATASET==='legacy'?'demo_2008_utxo_evidence.json':'demo_utxo_evidence.json'];
  for(const f of candidates){try{const url=f.startsWith('/')?f:'./'+f;const r=await fetch(url+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const j=await r.json();if(j.schema_version!=='6.0'||!Array.isArray(j.utxo_edges)||!Array.isArray(j.transactions))continue;result=j;origin=f;break}catch{/* show explicit unavailable state */}}
  v6Provenance=result;v6ProvSource=origin;if(v6Provenance&&!v6Provenance.transactions.some(t=>t.txid===v6Tx))v6Tx=v6Provenance.transactions.find(t=>t.linked_inputs>0)?.txid||v6Provenance.transactions[0]?.txid||'';
- if(state.route==='provenance')render();
+ if(state.route==='provenance'||state.route==='graph3d')render();
 }
 function v6TxSvg(tx){const edges=v6Provenance?.utxo_edges||[];const before=edges.filter(e=>e.to_txid===tx).slice(0,5),after=edges.filter(e=>e.from_txid===tx).slice(0,5);
  if(!before.length&&!after.length)return empty('No explicit prev_txid:vout spend links involving this transaction in the imported dataset. This does not mean it has no real-world connections.');
